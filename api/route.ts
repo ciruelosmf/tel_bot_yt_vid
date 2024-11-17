@@ -44,7 +44,7 @@ async function generateAIResponse(prompt: string): Promise<string> {
 
 
 // Bot handlers
-bot.command("start", (ctx) => ctx.reply("Welcome! I'm an AI-powered bot. Send me a message and I'll respond with AI-generated content."));
+bot.command("start", (ctx) => ctx.reply("Welcomeee! I'm an AI-powered bot. Send me a message and I'll respond with AI-generated content."));
 
 
 
