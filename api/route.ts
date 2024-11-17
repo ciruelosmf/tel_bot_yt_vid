@@ -9,8 +9,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 
 
-// Initialize the bot
-const token = process.env.BOT_M_TOKEN;
+// weird wrong env variable name not set
+const token = process.env.BOT_TOKEN;
 const googleApiKey = process.env.GOOGLE_API_KEY;
 
 if (!token) throw new Error("BOT_TOKEN is unset");
