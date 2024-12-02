@@ -10,6 +10,11 @@ const token = process.env.BOT_TOKEN;
 if (!token) throw new Error("BOT_TOKEN is unset");
 const bot = new Bot(token);
 
+
+
+
+
+
 // Validate and parse product input
 function parseProductInput(input: string) {
   const cleanInput = input.replace('/addproduct', '').trim();
@@ -34,8 +39,14 @@ function parseProductInput(input: string) {
   return { name, description, price, quantity };
 }
 
+
+
+
+
+
+
 // Handler for adding products
-bot.command("añadir", async (ctx) => {
+bot.command("addproduct", async (ctx) => {
   try {
     const input = ctx.message?.text;
 
