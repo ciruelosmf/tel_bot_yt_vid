@@ -83,7 +83,7 @@ bot.command("productos", async (ctx) => {
     const productList = products.map((product, index) => 
       `${index + 1}. *${product.product_name}*\n` +
       `   Descripción: ${product.product_description}\n` +
-      `   Precio: $${product.product_price.toFixed(2)}\n` +
+      `   Precio: $${product.product_price }\n` +
       `   Cantidad: ${product.product_quantity}`
     ).join('\n\n');
 
@@ -151,11 +151,11 @@ bot.command("agregar", async (ctx) => {
       'product' // Message type
     ]);
     
-    await ctx.reply(`Product "${name}" added successfully!\n` +
+    await ctx.reply(`Producto "${name}" agregado correctamente!\n` +
       `Details:\n` +
-      `- Description: ${description}\n` +
-      `- Price: $${price.toFixed(2)}\n` +
-      `- Quantity: ${quantity}`);
+      `- Descripción: ${description}\n` +
+      `- Precio: $${price.toFixed(2)}\n` +
+      `- Cantidad: ${quantity}`);
   } catch (error) {
     if (error instanceof Error) {
       await ctx.reply(error.message);
@@ -170,7 +170,7 @@ bot.command("agregar", async (ctx) => {
 // Bot handler - simply echo back the received message
 bot.on("message:text", async (ctx) => {
   try {
-    return ctx.reply("Use el comando '/añadir' para gregar un producto al stock, formato {nombre de producto}, {descripción}, {precio},{cantidad}. ATENCIÓN: SEPARAR POR COMAS CADA ITEM. Use el comando /productos para ver todos los productos guardados ");
+    return ctx.reply("Use el comando '/agregar' para gregar un producto al stock, formato {nombre de producto}, {descripción}, {precio},{cantidad}. ATENCIÓN: SEPARAR POR COMAS CADA ITEM. \n\nUse el comando '/productos' para ver todos los productos guardados ");
   } catch (error) {
     console.error('Error de mensaje:', error);
     return ctx.reply("Hubo un error, intente de nuevo.");
