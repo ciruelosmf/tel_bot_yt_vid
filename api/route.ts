@@ -17,7 +17,7 @@ const bot = new Bot(token);
 
 // Validate and parse product input
 function parseProductInput(input: string) {
-  const cleanInput = input.replace('/añadir', '').trim();
+  const cleanInput = input.replace('/agregar', '').trim();
   
   const parts = cleanInput.split(',').map(part => 
     part.trim().replace(/^"|"$/g, '')
@@ -46,7 +46,7 @@ function parseProductInput(input: string) {
 
 
 // Handler for adding products
-bot.command("añadir", async (ctx) => {
+bot.command("agregar", async (ctx) => {
   try {
     const input = ctx.message?.text;
 
