@@ -24,7 +24,7 @@ function parseProductInput(input: string) {
   );
   
   if (parts.length !== 4) {
-    throw new Error('Formato invalido. Use: /agregar {nombre de producto}, {descripción}, {precio},{cantidad} ---');
+    throw new Error('Invalid input format. Use: /addproduct "Product Name", "Description", "price", "quantity"');
   }
   
   const [name, description, priceStr, quantityStr] = parts;
@@ -44,68 +44,8 @@ function parseProductInput(input: string) {
 
 
 
-async function getAllProducts() {
-  try {
-    const result = await sql`
-      SELECT 
-        product_name, 
-        product_description, 
-        product_price, 
-        product_quantity 
-      FROM products 
-      ORDER BY product_name
-    `;
-    return result;
-  } catch (error) {
-    console.error('Error retrieving products:', error);
-    throw new Error('Could not retrieve products');
-  }
-}
 
-
-
-
-
-
-
-
-// get all products from DB command handler
-bot.command("productos", async (ctx) => {
-  try {
-    const products = await getAllProducts();
-    
-    if (products.length === 0) {
-      await ctx.reply("No hay productos en el inventario.");
-      return;
-    }
-
-    // Format the product list
-    const productList = products.map((product, index) => 
-      `${index + 1}. *${product.product_name}*\n` +
-      `   Descripción: ${product.product_description}\n` +
-      `   Precio: $${product.product_price.toFixed(2)}\n` +
-      `   Cantidad: ${product.product_quantity}`
-    ).join('\n\n');
-
-    await ctx.reply(`*Lista de Productos:*\n\n${productList}`, { 
-      parse_mode: 'Markdown' 
-    });
-
-  } catch (error) {
-    console.error('Error in /productos command:', error);
-    await ctx.reply("Hubo un error al recuperar los productos.");
-  }
-});
-
-
-
-
-
-
-
-
-
-// Handler for adding products to DB
+// Handler for adding products
 bot.command("agregar", async (ctx) => {
   try {
     const input = ctx.message?.text;
@@ -170,7 +110,7 @@ bot.command("agregar", async (ctx) => {
 // Bot handler - simply echo back the received message
 bot.on("message:text", async (ctx) => {
   try {
-    return ctx.reply("Use el comando '/añadir' para gregar un producto al stock, formato {nombre de producto}, {descripción}, {precio},{cantidad}. ATENCIÓN: SEPARAR POR COMAS CADA ITEM. Use el comando /productos para ver todos los productos guardados ");
+    return ctx.reply("Use el comando '/añadir' para gregar un producto al stock, formato {nombre de producto}, {descripción}, {precio},{cantidad}. ATENCIÓN: SEPARAR POR COMAS CADA ITEM ");
   } catch (error) {
     console.error('Error de mensaje:', error);
     return ctx.reply("Hubo un error, intente de nuevo.");
