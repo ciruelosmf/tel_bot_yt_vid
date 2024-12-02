@@ -10,13 +10,46 @@ const token = process.env.BOT_TOKEN;
 if (!token) throw new Error("BOT_TOKEN is unset");
 const bot = new Bot(token);
 
-// Bot handler to store messages in the database
-bot.on("message:text", async (ctx) => {
-  try {
-    // Extract message details
-    const { from, text, message_id, date } = ctx.message;
+// Validate and parse product input
+function parseProductInput(input: string) {
+  const cleanInput = input.replace('/addproduct', '').trim();
+  
+  const parts = cleanInput.split(',').map(part => 
+    part.trim().replace(/^"|"$/g, '')
+  );
+  
+  if (parts.length !== 4) {
+    throw new Error('Invalid input format. Use: /addproduct "Product Name", "Description", "price", "quantity"');
+  }
+  
+  const [name, description, priceStr, quantityStr] = parts;
+  
+  const price = parseFloat(priceStr);
+  const quantity = parseInt(quantityStr);
+  
+  if (isNaN(price) || isNaN(quantity)) {
+    throw new Error('Price and quantity must be valid numbers');
+  }
+  
+  return { name, description, price, quantity };
+}
 
-    // Insert message into database
+// Handler for adding products
+bot.command("añadir", async (ctx) => {
+  try {
+    const input = ctx.message?.text;
+
+    // Use optional chaining and destructuring carefully
+    const from = ctx.from;
+    const message_id = ctx.message?.message_id;
+    const date = ctx.message?.date;
+
+    if (!input || !from || !message_id || !date) {
+      throw new Error('Invalid message context');
+    }
+    
+    const { name, description, price, quantity } = parseProductInput(input);
+    
     await sql(`
       INSERT INTO telegram_messages (
         message_id, 
@@ -24,10 +57,14 @@ bot.on("message:text", async (ctx) => {
         username, 
         first_name, 
         last_name, 
-        message_text, 
-        message_date
+        product_name, 
+        product_description, 
+        product_price, 
+        product_quantity, 
+        message_date,
+        message_type
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
       )
     `, [
       message_id,
@@ -35,17 +72,43 @@ bot.on("message:text", async (ctx) => {
       from?.username || null,
       from?.first_name || null,
       from?.last_name || null,
-      text,
-      new Date(date * 1000) // Convert Unix timestamp to Date
+      name, // Product name
+      description, // Product description
+      price, // Product price
+      quantity, // Product quantity
+      new Date(date * 1000), // Convert UNIX timestamp to JavaScript Date
+      'product' // Message type
     ]);
-
-    // Respond to the user
-    return ctx.reply("Message received and stored successfully!");
+    
+    await ctx.reply(`Product "${name}" added successfully!\n` +
+      `Details:\n` +
+      `- Description: ${description}\n` +
+      `- Price: $${price.toFixed(2)}\n` +
+      `- Quantity: ${quantity}`);
   } catch (error) {
-    console.error('Error handling message:', error);
-    return ctx.reply("Sorry, there was an error processing your message. Please try again.");
+    if (error instanceof Error) {
+      await ctx.reply(error.message);
+    } else {
+      await ctx.reply("Sorry, there was an error adding the product.");
+    }
   }
 });
+
+
+
+// Bot handler - simply echo back the received message
+bot.on("message:text", async (ctx) => {
+  try {
+    return ctx.reply("Use el comando '/añadir' para gregar un producto al stock, formato {nombre de producto}, {descripción}, {precio},{cantidad}. ATENCIÓN: SEPARAR POR COMAS CADA ITEM ");
+  } catch (error) {
+    console.error('Error de mensaje:', error);
+    return ctx.reply("Hubo un error, intente de nuevo.");
+  }
+});
+
+
+
+
 
 // Create the webhook callback handler
 const handleWebhook = webhookCallback(bot, "http");
@@ -54,7 +117,6 @@ const handleWebhook = webhookCallback(bot, "http");
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method === "POST") {
-      // Handle the webhook
       await handleWebhook(req, res);
     } else {
       res.status(405).json({ error: 'Method not allowed' });
