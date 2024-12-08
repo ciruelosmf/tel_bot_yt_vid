@@ -17,7 +17,7 @@ export default function TelegramMiniApp() {
       // Get user data
       const user = webapp.initDataUnsafe.user;
       if (user) {
-        setUserName(user.first_name || user.username || 'Telegram User');
+        setUserName(user.username || user.username || 'Telegram User');
       }
     }
   }, []);
