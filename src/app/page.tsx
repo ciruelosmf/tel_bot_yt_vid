@@ -1,15 +1,18 @@
 "use client"
-import { useEffect, useState } from "react";
-
+import React, { useEffect, useState } from 'react';
 
 export default function TelegramMiniApp() {
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
     // Check if Telegram WebApp is available
-    if (window.Telegram?.WebApp) {
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
       const webapp = window.Telegram.WebApp;
-      webapp.ready();
+      
+      // Ensure WebApp is only initialized on client side
+      if (typeof webapp.ready === 'function') {
+        webapp.ready();
+      }
 
       // Get user data
       const user = webapp.initDataUnsafe.user;
