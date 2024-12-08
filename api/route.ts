@@ -170,7 +170,7 @@ bot.command("agregar", async (ctx) => {
 // Bot handler - simply echo back the received message
 bot.on("message:text", async (ctx) => {
   try {
-    return ctx.reply("Use el comando '/agregar' para gregar un producto al stock, formato {nombre de producto}, {descripción}, {precio},{cantidad}. ATENCIÓN: SEPARAR POR COMAS CADA ITEM. \n\nUse el comando '/productos' para ver todos los productos guardados ");
+    return ctx.reply("Use el comando '/agregar' para gregar un producto al stock, user formato: {nombre de producto}, {descripción}, {precio}, {cantidad}.\nATENCIÓN: SEPARAR POR COMAS CADA ITEM. Ejemplo: /agregar manzana, roja, 5, 3 \n\nUse el comando '/productos' para ver todos los productos guardados ");
   } catch (error) {
     console.error('Error de mensaje:', error);
     return ctx.reply("Hubo un error, intente de nuevo.");
