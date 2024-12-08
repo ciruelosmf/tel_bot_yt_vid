@@ -1,40 +1,35 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-const Home: React.FC = () => {
-  const [username, setUsername] = useState<string>("aa");
+const WebApp = () => {
+  const [username, setUsername] = useState<string>('Unknown User');
 
   useEffect(() => {
-    console.log("Checking Telegram context...");
+    // Check if we're in the Telegram WebApp context
+    const urlParams = new URLSearchParams(window.location.search);
+    const initData = urlParams.get('init_data'); // Get initData from the URL
 
-    if (typeof window !== "undefined") {
-      console.log("Window is defined.");
-
-      if (window.Telegram?.WebApp) {
-        console.log("Telegram WebApp context detected!");
-
-        const tg = window.Telegram.WebApp;
-        const initDataUnsafe = tg.initDataUnsafe || {};
-        console.log("initDataUnsafe:", initDataUnsafe);
-
-        setUsername(initDataUnsafe?.user?.username || "Unknown User");
-        tg.expand();
-      } else {
-        console.log("Telegram WebApp context NOT detected.");
+    if (initData) {
+      try {
+        // Decode base64 initData (Telegram sends it base64 encoded)
+        const decodedData = atob(initData); // Decode base64 to string
+        const parsedData = JSON.parse(decodedData); // Parse the JSON string
+        
+        // Extract the username (if available)
+        setUsername(parsedData?.user?.username || 'Unknown User');
+      } catch (error) {
+        console.error('Error decoding initData:', error);
+        setUsername('Error loading user data');
       }
-    } else {
-      console.log("Window is undefined.");
     }
   }, []);
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", textAlign: "center", padding: "20px" }}>
-      <h1>Welcome to Telegram Mini-App</h1>
-      <p>Your username is:</p>
-      <h2> {username || "This app must be opened via Telegram to display your username."} </h2>
+    <div>
+      <h1>Hello, {username}!</h1>
     </div>
   );
 };
 
-export default Home;
+export default WebApp;
