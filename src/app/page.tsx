@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
-  const [username, setUsername] = useState<string>("");
+  const [username, setUsername] = useState<string>("asd");
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.Telegram?.WebApp) {
@@ -12,7 +12,7 @@ const Home: React.FC = () => {
       // Extract username from initDataUnsafe
       const initDataUnsafe = tg.initDataUnsafe || {};
       setUsername(initDataUnsafe?.user?.username || "Unknown User");
-
+console.log(123123123);
       tg.expand(); // Optional: Expand the WebApp view
     }
   }, []);
