@@ -1,35 +1,31 @@
 "use client"
+import { useEffect, useState } from "react";
 
-import { useEffect, useState } from 'react';
 
-const WebApp = () => {
-  const [username, setUsername] = useState<string>('Unknown User');
+export default function TelegramMiniApp() {
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
-    // Check if we're in the Telegram WebApp context
-    const urlParams = new URLSearchParams(window.location.search);
-    const initData = urlParams.get('init_data'); // Get initData from the URL
+    // Check if Telegram WebApp is available
+    if (window.Telegram?.WebApp) {
+      const webapp = window.Telegram.WebApp;
+      webapp.ready();
 
-    if (initData) {
-      try {
-        // Decode base64 initData (Telegram sends it base64 encoded)
-        const decodedData = atob(initData); // Decode base64 to string
-        const parsedData = JSON.parse(decodedData); // Parse the JSON string
-        
-        // Extract the username (if available)
-        setUsername(parsedData?.user?.username || 'Unknown User');
-      } catch (error) {
-        console.error('Error decoding initData:', error);
-        setUsername('Error loading user data');
+      // Get user data
+      const user = webapp.initDataUnsafe.user;
+      if (user) {
+        setUserName(user.first_name || user.username || 'Telegram User');
       }
     }
   }, []);
 
   return (
-    <div>
-      <h1>Hello, {username}!</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold">
+          {userName ? `Welcome, ${userName}!` : 'Loading...'}
+        </h1>
+      </div>
     </div>
   );
-};
-
-export default WebApp;
+}
