@@ -3,17 +3,28 @@
 import { useEffect, useState } from "react";
 
 const Home: React.FC = () => {
-  const [username, setUsername] = useState<string>("asd");
+  const [username, setUsername] = useState<string>("aa");
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
+    console.log("Checking Telegram context...");
 
-      // Extract username from initDataUnsafe
-      const initDataUnsafe = tg.initDataUnsafe || {};
-      setUsername(initDataUnsafe?.user?.username || "Unknown User");
-console.log(123123123);
-      tg.expand(); // Optional: Expand the WebApp view
+    if (typeof window !== "undefined") {
+      console.log("Window is defined.");
+
+      if (window.Telegram?.WebApp) {
+        console.log("Telegram WebApp context detected!");
+
+        const tg = window.Telegram.WebApp;
+        const initDataUnsafe = tg.initDataUnsafe || {};
+        console.log("initDataUnsafe:", initDataUnsafe);
+
+        setUsername(initDataUnsafe?.user?.username || "Unknown User");
+        tg.expand();
+      } else {
+        console.log("Telegram WebApp context NOT detected.");
+      }
+    } else {
+      console.log("Window is undefined.");
     }
   }, []);
 
@@ -21,7 +32,7 @@ console.log(123123123);
     <div style={{ fontFamily: "Arial, sans-serif", textAlign: "center", padding: "20px" }}>
       <h1>Welcome to Telegram Mini-App</h1>
       <p>Your username is:</p>
-      <h2>{username}</h2>
+      <h2> {username || "This app must be opened via Telegram to display your username."} </h2>
     </div>
   );
 };
