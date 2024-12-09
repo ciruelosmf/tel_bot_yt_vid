@@ -123,7 +123,7 @@ bot.command("credits", async (ctx) => {
     // Extract user information
     const from = ctx.from;
     if (!from) {
-      return ctx.reply("Unable to retrieve user information.");
+      return ctx.reply("Unable to retrsdieve user information.");
     }
 
     // Get user credits
