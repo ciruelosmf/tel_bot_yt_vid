@@ -166,6 +166,110 @@ You currently have: *${credits}* credits remaining
 
 
 
+
+// Add a function to decrement user credits
+async function decrementUserCredits(userId: number) {
+  try {
+    const result = await sql`
+      UPDATE telegram_users
+      SET credits = GREATEST(credits - 1, 0)
+      WHERE user_id = ${userId}
+      RETURNING credits
+    `;
+    
+    return result[0]?.credits ?? 0;
+  } catch (error) {
+    console.error('Error decrementing user credits:', error);
+    throw new Error('Could not decrement credits');
+  }
+}
+
+
+
+
+
+// Add a function to check if user has enough credits
+async function hasEnoughCredits(userId: number) {
+  try {
+    const result = await sql`
+      SELECT credits 
+      FROM telegram_users 
+      WHERE user_id = ${userId}
+    `;
+    
+    return (result[0]?.credits ?? 0) > 0;
+  } catch (error) {
+    console.error('Error checking user credits:', error);
+    throw new Error('Could not check credits');
+  }
+}
+
+
+
+
+
+
+
+
+// Modify the existing bot configuration to handle image uploads
+bot.on("message:photo", async (ctx) => {
+  try {
+    // Extract user information
+    const from = ctx.from;
+    if (!from) {
+      return ctx.reply("Unable to retrieve user information.");
+    }
+
+    // Check if user has credits
+    const hasCredits = await hasEnoughCredits(from.id);
+    
+    if (!hasCredits) {
+      return ctx.reply(`
+*Oops! Not Enough Credits* 💡
+
+You've run out of credits. To continue using the AI image description service:
+- Use /credits to check your balance
+- Upgrade your subscription
+      `, {
+        parse_mode: 'Markdown'
+      });
+    }
+
+    // Decrement user credits
+    const remainingCredits = await decrementUserCredits(from.id);
+
+    // Temporary placeholder for AI processing
+    // Later, this will be replaced with actual AI image description
+    await ctx.reply(`
+*Image Received* 🖼️
+
+Credits used: 1
+Remaining credits: ${remainingCredits}
+
+(AI description coming soon...)
+    `, {
+      parse_mode: 'Markdown'
+    });
+
+    // TODO: Implement AI image description logic here
+  } catch (error) {
+    console.error('Error processing image:', error);
+    await ctx.reply("Sorry, there was an error processing your image.");
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
  
 
 
