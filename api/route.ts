@@ -276,10 +276,10 @@ async function updateUserData(
  // Start command to reset or begin registration
 bot.command('staart', async (ctx) => {
   // Reset user to initial registration state
-  //await updateUserRegistrationStep(
-  //  ctx.from!.id, 
-  //  RegistrationStep.START
-  //);
+  await updateUserRegistrationStep(
+   ctx.from!.id, 
+  RegistrationStep.START
+  );
   
   await ctx.reply('Let\'s start your registration process!');
 });
@@ -297,7 +297,7 @@ bot.command('staart', async (ctx) => {
 bot.on('message', async (ctx) => {
   // Skip if not a text message
   if (!ctx.message?.text) return;
-  await ctx.reply('Let\'s start your regissssssstration process!');
+  await ctx.reply('  regissssssstration process!');
 
   // Fetch user's current registration state
   // const userRegistration = await getUserRegistration(ctx.from!.id);
