@@ -181,6 +181,8 @@ async function updateUserRegistrationStep(
   telegramId: number, 
   step: RegistrationStep
 ) {
+
+  console.log(1)
   // Implement with your database connection
   // Example with Prisma:
   // await prisma.user.update({
