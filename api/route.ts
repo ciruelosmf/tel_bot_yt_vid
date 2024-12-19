@@ -15,26 +15,239 @@ const bot = new Bot(token);
 
 
 
- 
 
 
-// Function to add user to the database
-async function addUserWith2Credits(userId: number, username?: string) {
+
+
+
+
+
+// Define an enum for registration steps
+enum RegistrationStep {
+  START = 'start',
+  NAME = 'name',
+  LAST_NAME = 'lastName',
+  LOCATION = 'location',
+  EXPERIENCE = 'experience',
+  COMPLETED = 'completed'
+}
+
+// User data interface
+interface UserRegistrationData {
+  telegram_id : number;
+  current_step : RegistrationStep;
+  userData: {
+    name?: string;
+    last_name ?: string;
+    location?: string;
+    years_of_practice ?: number;
+  };
+}
+
+// Bot flow handler
+async function handleRegistrationFlow(ctx: Context, userRegistration: UserRegistrationData) {
+  // Get the message text
+  const messageText = ctx.message?.text;
+
+  // Switch based on current registration step
+  switch (userRegistration.currentStep) {
+
+    case RegistrationStep.START:
+      await ctx.reply('Welcome! What is your first name?');
+      // Update step in your database
+      await updateUserRegistrationStep(
+        ctx.from!.id, 
+        RegistrationStep.NAME
+      );
+      break;
+
+
+
+    case RegistrationStep.NAME:
+      // Validate name
+      if (!messageText || messageText.length < 2) {
+        await ctx.reply('Please provide a valid name.');
+        return;
+      }
+
+
+      // Save name to your database
+      await updateUserData(ctx.from!.id, {
+        name: messageText
+      });
+
+      await ctx.reply(`Nice to meet you, ${messageText}! What is your last name?`);
+      
+
+      // Update to next step
+      await updateUserRegistrationStep(
+        ctx.from!.id, 
+        RegistrationStep.LAST_NAME
+      );
+      break;
+
+
+
+
+
+
+
+    case RegistrationStep.LAST_NAME:
+      // Similar validation and step progression
+      if (!messageText || messageText.length < 2) {
+        await ctx.reply('Please provide a valid last name.');
+        return;
+      }
+
+      await updateUserData(ctx.from!.id, {
+        lastName: messageText
+      });
+
+      await ctx.reply('Great! What is your current city or location?');
+      
+      await updateUserRegistrationStep(
+        ctx.from!.id, 
+        RegistrationStep.LOCATION
+      );
+      break;
+
+
+
+
+
+
+    // Continue with similar patterns for other steps
+    case RegistrationStep.LOCATION:
+      // Location validation and progression
+      if (!messageText) {
+        await ctx.reply('Please provide a valid location.');
+        return;
+      }
+
+      await updateUserData(ctx.from!.id, {
+        location: messageText
+      });
+
+      await ctx.reply('How many years of practice do you have?');
+      
+      await updateUserRegistrationStep(
+        ctx.from!.id, 
+        RegistrationStep.EXPERIENCE
+      );
+      break;
+
+    case RegistrationStep.EXPERIENCE:
+      const yearsOfPractice = parseInt(messageText || '0');
+      
+      if (isNaN(yearsOfPractice) || yearsOfPractice < 0) {
+        await ctx.reply('Please provide a valid number of years.');
+        return;
+      }
+
+      await updateUserData(ctx.from!.id, {
+        yearsOfPractice
+      });
+
+      // Final step - complete registration
+      await ctx.reply('Registration Complete!');
+      
+      await updateUserRegistrationStep(
+        ctx.from!.id, 
+        RegistrationStep.COMPLETED
+      );
+
+      // Optionally trigger next actions like finding practice spots
+      await sendPracticeRecommendations(ctx, yearsOfPractice);
+      break;
+
+    case RegistrationStep.COMPLETED:
+      await ctx.reply('You have already completed registration. How can I help you?');
+      break;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+// Database interaction functions (you'll implement these with your DB)
+async function updateUserRegistrationStep(
+  telegramId: number, 
+  step: RegistrationStep
+) {
+  // Implement with your database connection
+  // Example with Prisma:
+  // await prisma.user.update({
+  //   where: { telegramId },
+  //   data: { currentStep: step }
+  // })
+}
+
+
+
+
+
+
+async function updateUserData(
+  telegramId: number,
+  data: Partial<UserRegistrationData['userData']>
+) {
   try {
-    const result = await sql`
-      INSERT INTO telegram_users (user_id, username, credits)
-      VALUES (${userId}, ${username || null}, 2)
-      ON CONFLICT (user_id) DO UPDATE
-      SET 
-        username = COALESCE(EXCLUDED.username, telegram_users.username),
-        credits = GREATEST(telegram_users.credits, 2),
-        last_active_at = CURRENT_TIMESTAMP
+    // Build dynamic query based on provided data
+    const updateFields: string[] = [];
+    const values: any[] = [telegramId];
+    let parameterIndex = 2; // Start from $2 since $1 is telegramId
+
+    // Add each field that exists in the data object
+    if (data.name !== undefined) {
+      updateFields.push(`name = $${parameterIndex}`);
+      values.push(data.name);
+      parameterIndex++;
+    }
+
+    if (data.last_name !== undefined) {
+      updateFields.push(`last_name = $${parameterIndex}`);
+      values.push(data.last_name);
+      parameterIndex++;
+    }
+
+    if (data.location !== undefined) {
+      updateFields.push(`location = $${parameterIndex}`);
+      values.push(data.location);
+      parameterIndex++;
+    }
+
+    if (data.years_of_practice  !== undefined) {
+      updateFields.push(`years_of_practice = $${parameterIndex}`);
+      values.push(data.years_of_practice );
+      parameterIndex++;
+    }
+
+    // If no fields to update, return early
+    if (updateFields.length === 0) {
+      return;
+    }
+
+    // Construct and execute the query
+    const query = `
+      UPDATE user_registrations 
+      SET ${updateFields.join(', ')}
+      WHERE telegram_id = $1
       RETURNING *
     `;
-    return result[0];
+
+    const result = await sql(query, values);
+    
+    return result.rows[0];
   } catch (error) {
-    console.error('Error adding user:', error);
-    throw new Error('Could not add user to database');
+    console.error('Error updating user data:', error);
+    throw new Error('Failed to update user data');
   }
 }
 
@@ -45,39 +258,45 @@ async function addUserWith2Credits(userId: number, username?: string) {
 
 
 
-// Start command handler
-bot.command("start", async (ctx) => {
-  try {
-    // Extract user information
-    const from = ctx.from;
-    if (!from) {
-      return ctx.reply("Unable to retrieve user information.");
-    }
+async function getUserRegistration(telegramId: number): Promise<UserRegistrationData> {
+  // Retrieve user registration data from your database
+  // Return a default state if not found
+}
 
-    // Add user to database
-    const user = await addUserWith2Credits(from.id, from.username);
 
-    // Construct welcome message
-    const welcomeMessage = `
-*Welcome to the AI Image Description Bot!* 🤖📸
 
-You have been granted *2 initial credits* to try out the service.
 
-Your user details:
-- User ID: \`${from.id}\`
-- Username: @${from.username || 'N/A'}
-- Current Credits: *${user.credits}*
 
-Send me an image, and I'll describe it for you!
-    `;
 
-    await ctx.reply(welcomeMessage, {
-      parse_mode: 'Markdown'
-    });
-  } catch (error) {
-    console.error('Error in /start command:', error);
-    await ctx.reply("Sorry, there was an error creating your account.");
-  }
+
+
+
+
+
+
+
+
+// Main bot message handler
+bot.on('message', async (ctx) => {
+  // Skip if not a text message
+  if (!ctx.message?.text) return;
+
+  // Fetch user's current registration state
+  const userRegistration = await getUserRegistration(ctx.from!.id);
+
+  // Handle registration flow
+  await handleRegistrationFlow(ctx, userRegistration);
+});
+
+// Start command to reset or begin registration
+bot.command('start', async (ctx) => {
+  // Reset user to initial registration state
+  await updateUserRegistrationStep(
+    ctx.from!.id, 
+    RegistrationStep.START
+  );
+  
+  await ctx.reply('Let\'s start your registration process!');
 });
 
 
@@ -91,183 +310,12 @@ Send me an image, and I'll describe it for you!
 
 
 
-
-
-
-
-
-// Add this function to retrieve user credits
-async function getUserCredits(userId: number) {
-  try {
-    const result = await sql`
-      SELECT credits 
-      FROM telegram_users 
-      WHERE user_id = ${userId}
-    `;
-    
-    return result[0]?.credits ?? 0;
-  } catch (error) {
-    console.error('Error retrieving user credits:', error);
-    throw new Error('Could not retrieve credits');
-  }
-}
-
-
-
-
-
-
-// Add this command handler
-bot.command("credits", async (ctx) => {
-  try {
-    // Extract user information
-    const from = ctx.from;
-    if (!from) {
-      return ctx.reply("Unable to retrsdieve user information.");
-    }
-
-    // Get user credits
-    const credits = await getUserCredits(from.id);
-
-    // Construct credits message with some personality
-    const creditsMessage = `
-*Your Credit Balance* 💳
-
-You currently have: *${credits}* credits remaining 
-
-- Use these credits to get AI descriptions of your images
-- Low on credits? Check out our subscription plans!
-    `;
-
-    await ctx.reply(creditsMessage, {
-      parse_mode: 'Markdown'
-    });
-  } catch (error) {
-    console.error('Error in /credits command:', error);
-    await ctx.reply("Sorry, there was an error checking your credits.");
-  }
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Add a function to decrement user credits
-async function decrementUserCredits(userId: number) {
-  try {
-    const result = await sql`
-      UPDATE telegram_users
-      SET credits = GREATEST(credits - 1, 0)
-      WHERE user_id = ${userId}
-      RETURNING credits
-    `;
-    
-    return result[0]?.credits ?? 0;
-  } catch (error) {
-    console.error('Error decrementing user credits:', error);
-    throw new Error('Could not decrement credits');
-  }
-}
-
-
-
-
-
-// Add a function to check if user has enough credits
-async function hasEnoughCredits(userId: number) {
-  try {
-    const result = await sql`
-      SELECT credits 
-      FROM telegram_users 
-      WHERE user_id = ${userId}
-    `;
-    
-    return (result[0]?.credits ?? 0) > 0;
-  } catch (error) {
-    console.error('Error checking user credits:', error);
-    throw new Error('Could not check credits');
-  }
-}
-
-
-
-
-
-
-
-
-// Modify the existing bot configuration to handle image uploads
-bot.on("message:photo", async (ctx) => {
-  try {
-    // Extract user information
-    const from = ctx.from;
-    if (!from) {
-      return ctx.reply("Unable to retrieve user information.");
-    }
-
-    // Check if user has credits
-    const hasCredits = await hasEnoughCredits(from.id);
-    
-    if (!hasCredits) {
-      return ctx.reply(`
-*Oops! Not Enough Credits* 💡
-
-You've run out of credits. To continue using the AI image description service:
-- Use /credits to check your balance
-- Upgrade your subscription
-      `, {
-        parse_mode: 'Markdown'
-      });
-    }
-
-    // Decrement user credits
-    const remainingCredits = await decrementUserCredits(from.id);
-
-    // Temporary placeholder for AI processing
-    // Later, this will be replaced with actual AI image description
-    await ctx.reply(`
-*Image Received* 🖼️
-
-Credits used: 1
-Remaining credits: ${remainingCredits}
-
-(AI description coming soon...)
-    `, {
-      parse_mode: 'Markdown'
-    });
-
-    // TODO: Implement AI image description logic here
-  } catch (error) {
-    console.error('Error processing image:', error);
-    await ctx.reply("Sorry, there was an error processing your image.");
-  }
-});
-
-
-
-
-
-
-
-
-
-
-
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+////////////////////////////////////////////////
 
 
  
