@@ -271,11 +271,9 @@ async function updateUserData(
 
 
 
+ 
 
-
-
-
-
+ 
 
 
 // Main bot message handler
@@ -299,7 +297,7 @@ bot.on('message', async (ctx) => {
 
 
 // Start command to reset or begin registration
-bot.command('start', async (ctx) => {
+bot.command('staart', async (ctx) => {
   // Reset user to initial registration state
   //await updateUserRegistrationStep(
   //  ctx.from!.id, 
@@ -330,17 +328,7 @@ bot.command('start', async (ctx) => {
 
  
 
-
-// Bot handler - simply echo back the received message
-bot.on("message:text", async (ctx) => {
-  try {
-    return ctx.reply("Use /start to begin ");
-  } catch (error) {
-    console.error('Error :', error);
-    return ctx.reply(" error.");
-  }
-});
-
+ 
 
 
 
