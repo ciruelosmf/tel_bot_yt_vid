@@ -258,10 +258,10 @@ async function updateUserData(
 
 
 
-async function getUserRegistration(telegramId: number): Promise<UserRegistrationData> {
+//async function getUserRegistration(telegramId: number): Promise<UserRegistrationData> {
   // Retrieve user registration data from your database
   // Return a default state if not found
-}
+//}
 
 
 
