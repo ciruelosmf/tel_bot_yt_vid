@@ -1,4 +1,4 @@
-import { Bot, webhookCallback } from "grammy";
+import { Bot, webhookCallback, Context  } from "grammy";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { neon } from '@neondatabase/serverless';
 
@@ -50,7 +50,7 @@ async function handleRegistrationFlow(ctx: Context, userRegistration: UserRegist
   const messageText = ctx.message?.text;
 
   // Switch based on current registration step
-  switch (userRegistration.currentStep) {
+  switch (userRegistration.current_step) {
 
     case RegistrationStep.START:
       await ctx.reply('Welcome! What is your first name?');
@@ -100,7 +100,7 @@ async function handleRegistrationFlow(ctx: Context, userRegistration: UserRegist
       }
 
       await updateUserData(ctx.from!.id, {
-        lastName: messageText
+        last_name: messageText
       });
 
       await ctx.reply('Great! What is your current city or location?');
@@ -137,15 +137,15 @@ async function handleRegistrationFlow(ctx: Context, userRegistration: UserRegist
       break;
 
     case RegistrationStep.EXPERIENCE:
-      const yearsOfPractice = parseInt(messageText || '0');
+      const years_of_practice = parseInt(messageText || '0');
       
-      if (isNaN(yearsOfPractice) || yearsOfPractice < 0) {
+      if (isNaN(years_of_practice) || years_of_practice < 0) {
         await ctx.reply('Please provide a valid number of years.');
         return;
       }
 
       await updateUserData(ctx.from!.id, {
-        yearsOfPractice
+        years_of_practice
       });
 
       // Final step - complete registration
@@ -157,7 +157,7 @@ async function handleRegistrationFlow(ctx: Context, userRegistration: UserRegist
       );
 
       // Optionally trigger next actions like finding practice spots
-      await sendPracticeRecommendations(ctx, yearsOfPractice);
+      // await sendPracticeRecommendations(ctx, yearsOfPractice);
       break;
 
     case RegistrationStep.COMPLETED:
