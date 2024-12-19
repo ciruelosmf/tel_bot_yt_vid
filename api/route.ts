@@ -282,10 +282,10 @@ bot.on('message', async (ctx) => {
   if (!ctx.message?.text) return;
 
   // Fetch user's current registration state
-  const userRegistration = await getUserRegistration(ctx.from!.id);
+  // const userRegistration = await getUserRegistration(ctx.from!.id);
 
   // Handle registration flow
-  await handleRegistrationFlow(ctx, userRegistration);
+  //await handleRegistrationFlow(ctx, userRegistration);
 });
 
 // Start command to reset or begin registration
