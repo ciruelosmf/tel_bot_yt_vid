@@ -244,7 +244,7 @@ async function updateUserData(
 
     const result = await sql(query, values);
     
-    return result.[0];
+    return result[0];
   } catch (error) {
     console.error('Error updating user data:', error);
     throw new Error('Failed to update user data');
