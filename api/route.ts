@@ -176,6 +176,25 @@ async function handleRegistrationFlow(ctx: Context, userRegistration: UserRegist
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Database interaction functions (you'll implement these with your DB)
 async function updateUserRegistrationStep(
   telegramId: number, 
@@ -190,6 +209,28 @@ async function updateUserRegistrationStep(
   //   data: { currentStep: step }
   // })
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -260,10 +301,137 @@ async function updateUserData(
 
 
 
-//async function getUserRegistration(telegramId: number): Promise<UserRegistrationData> {
-  // Retrieve user registration data from your database
-  // Return a default state if not found
-//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function getUserRegistration(telegramId: number): Promise<UserRegistrationData | null> {
+  try {
+    const result = await sql`
+      SELECT 
+        telegram_id,
+        current_step,
+        name,
+        last_name,
+        location,
+        years_of_practice
+      FROM user_registrations 
+      WHERE telegram_id = ${telegramId}
+    `;
+
+    // If no user found, return null
+    if (result.length === 0) {
+      return null;
+    }
+
+    // Transform database row to UserRegistrationData format
+    const row = result[0];
+    
+    return {
+      telegram_id: row.telegram_id,
+      current_step: row.current_step as RegistrationStep,
+      userData: {
+        name: row.name || undefined,
+        last_name: row.last_name || undefined,
+        location: row.location || undefined,
+        years_of_practice: row.years_of_practice || undefined
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching user registration:', error);
+    throw new Error('Failed to fetch user registration');
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+async function createUserRegistration(
+  userRegistration: {
+    telegram_id: number;
+    current_step: RegistrationStep;
+    userData: {
+      name?: string;
+      last_name?: string;
+      location?: string;
+      years_of_practice?: number;
+    };
+  }
+) {
+  try {
+    const result = await sql`
+      INSERT INTO user_registrations (
+        telegram_id,
+        current_step,
+        name,
+        last_name,
+        location,
+        years_of_practice
+      ) VALUES (
+        ${userRegistration.telegram_id},
+        ${userRegistration.current_step},
+        ${userRegistration.userData.name || null},
+        ${userRegistration.userData.last_name || null},
+        ${userRegistration.userData.location || null},
+        ${userRegistration.userData.years_of_practice || null}
+      )
+      RETURNING *
+    `;
+
+    // Return the first row of the result
+    return result[0];
+  } catch (error) {
+    // Check for duplicate key violation
+    if ((error as any)?.code === '23505') { // PostgreSQL unique violation code
+      throw new Error('User registration already exists');
+    }
+    
+    console.error('Error creating user registration:', error);
+    throw new Error('Failed to create user registration');
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -274,7 +442,7 @@ async function updateUserData(
  
 
  // Start command to reset or begin registration
-bot.command('staart', async (ctx) => {
+bot.command('start', async (ctx) => {
   // Reset user to initial registration state
   await updateUserRegistrationStep(
    ctx.from!.id, 
@@ -295,15 +463,32 @@ bot.command('staart', async (ctx) => {
 
 // Main bot message handler
 bot.on('message', async (ctx) => {
-  // Skip if not a text message
-  if (!ctx.message?.text) return;
-  await ctx.reply('  regissssssstration process!');
 
-  // Fetch user's current registration state
-  // const userRegistration = await getUserRegistration(ctx.from!.id);
+  const telegram_id = ctx.from!.id;
+  
+  // Fetch or create initial registration state
+  let userRegistration = await getUserRegistration(telegram_id);
+  
+  if (!userRegistration) {
+    // Automatically create initial registration state
+    userRegistration = {
+      telegram_id,
+      current_step: RegistrationStep.START,
+      userData: {}
+    };
+    
+    // Save to database
+    await createUserRegistration(userRegistration);
+    
+    // Welcome message
+    await ctx.reply(`
+      Hi there! I see this is your first interaction. 
+      Let's get you registered! What is your first name?
+    `);
+  }
 
-  // Handle registration flow
-  //await handleRegistrationFlow(ctx, userRegistration);
+  // Proceed with registration flow
+  await handleRegistrationFlow(ctx, userRegistration);
 });
 
 
