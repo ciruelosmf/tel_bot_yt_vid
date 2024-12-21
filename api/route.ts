@@ -195,21 +195,45 @@ async function handleRegistrationFlow(ctx: Context, userRegistration: UserRegist
 
 
 
-// Database interaction functions (you'll implement these with your DB)
 async function updateUserRegistrationStep(
-  telegramId: number, 
+  telegramId: number,
   step: RegistrationStep
-) {
-
-  console.log(1)
-  // Implement with your database connection
-  // Example with Prisma:
-  // await prisma.user.update({
-  //   where: { telegramId },
-  //   data: { currentStep: step }
-  // })
-}
-
+ ): Promise<UserRegistrationData | null> {
+  try {
+    const result = await sql`
+      UPDATE user_registrations 
+      SET current_step = ${step}
+      WHERE telegram_id = ${telegramId}
+      RETURNING 
+        telegram_id,
+        current_step,
+        name,
+        last_name,
+        location,
+        years_of_practice
+    `;
+ 
+    if (result.length === 0) {
+      return null;
+    }
+ 
+    const row = result[0];
+    
+    return {
+      telegram_id: row.telegram_id,
+      current_step: row.current_step as RegistrationStep,
+      userData: {
+        name: row.name || undefined,
+        last_name: row.last_name || undefined,
+        location: row.location || undefined,
+        years_of_practice: row.years_of_practice || undefined
+      }
+    };
+  } catch (error) {
+    console.error('Error updating registration step:', error);
+    throw new Error('Failed to update registration step');
+  }
+ }
 
 
 
