@@ -149,7 +149,7 @@ const Chessboard: React.FC = () => {
         if (message.startsWith('bestmove')) {
           const bestMove = message.split(' ')[1];
           if (bestMove) {
-            game.move(bestMove, { sloppy: true });
+            game.move(bestMove, { strict: false });
             setBoardState([...game.board()]);
             setSelectedSquare(null);
             setPossibleMoves([]);
