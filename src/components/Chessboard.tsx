@@ -99,9 +99,7 @@ const Chessboard: React.FC = () => {
               alert('Checkmate!');
             } else if (game.isStalemate()) {
               alert('Stalemate!');
-            } else if (game.in_draw()) {
-              alert('Draw!');
-            }
+            } 
           } else {
             // Let the AI make a move
             makeAIMove();
@@ -163,9 +161,7 @@ const Chessboard: React.FC = () => {
                 alert('Checkmate! You lose.');
               } else if (game.isStalemate()) {
                 alert('Stalemate!');
-              } else if (game.in_draw()) {
-                alert('Draw!');
-              }
+              } 
             }
           }
         }
