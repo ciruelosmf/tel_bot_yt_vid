@@ -44,7 +44,7 @@ const Chessboard: React.FC = () => {
 
   useEffect(() => {
     if (engine) {
-      stockfishRef.current = new StockfishEngine(engine);
+      stockfishRef.current = new StockfishEngine();
     }
   }, [engine])
 
