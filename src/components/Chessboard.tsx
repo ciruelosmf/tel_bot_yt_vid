@@ -185,7 +185,7 @@ const Chessboard: React.FC = () => {
     return (
       <div
         key={`${row},${col}`}
-        className={`w-16 h-16 relative ${
+        className={`w-14 h-14 relative ${
           isWhiteSquare ? 'bg-gray-900' : 'bg-green-600'
         } ${isSelected ? 'border-4 border-yellow-500' : ''}`}
         onClick={() => handleSquareClick(row, col)}
@@ -203,7 +203,7 @@ const Chessboard: React.FC = () => {
   return (
     <div>
       {boardState.map((rowArray, rowIdx) => (
-        <div key={rowIdx} className="flex">
+        <div key={rowIdx} className="flex ">
           {rowArray.map((square, colIdx) =>
             renderSquare(square, rowIdx, colIdx)
           )}
