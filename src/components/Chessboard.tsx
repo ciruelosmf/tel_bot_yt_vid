@@ -169,7 +169,7 @@ const Chessboard: React.FC = () => {
       // Send the current position to Stockfish
       stockfish.send('ucinewgame');
       stockfish.send(`position fen ${game.fen()}`);
-      stockfish.send('go depth 15');
+      stockfish.send('go depth 9');
     }
   };
 
@@ -185,7 +185,7 @@ const Chessboard: React.FC = () => {
     return (
       <div
         key={`${row},${col}`}
-        className={`w-14 h-14 relative ${
+        className={`w-12 h-12 relative ${
           isWhiteSquare ? 'bg-gray-900' : 'bg-green-600'
         } ${isSelected ? 'border-4 border-yellow-500' : ''}`}
         onClick={() => handleSquareClick(row, col)}
