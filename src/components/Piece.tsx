@@ -10,7 +10,7 @@ type PieceProps = {
 const Piece: React.FC<PieceProps> = ({ piece }) => {
   // Mapping for white pieces to custom images
   const whitePieceImages: { [key: string]: string } = {
-    p: '/wp.PNG',
+    p: '/wp.png',
     n: '/wp.png',
     b: '/wp.png',
     r: '/wp.png',

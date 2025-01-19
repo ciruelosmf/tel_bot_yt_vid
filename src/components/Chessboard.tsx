@@ -185,7 +185,7 @@ const Chessboard: React.FC = () => {
     return (
       <div
         key={`${row},${col}`}
-        className={`w-12 h-12 relative ${
+        className={`w-10 h-10 relative ${
           isWhiteSquare ? 'bg-gray-900' : 'bg-green-600'
         } ${isSelected ? 'border-4 border-yellow-500' : ''}`}
         onClick={() => handleSquareClick(row, col)}
