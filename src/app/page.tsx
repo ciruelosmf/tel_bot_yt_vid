@@ -49,13 +49,8 @@ export default function Home() {
           {/* Modal background */}
           <div className="fixed inset-0 bg-black opacity-50"></div>
           {/* Modal content */}
-          <div className="relative bg-white p-4 z-50 rounded-lg">
-            <button
-              onClick={() => setShowGame(false)}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-            >
-              Close
-            </button>
+          <div className="relative   z-50 rounded-lg">
+ 
             <Chessboard />
           </div>
         </div>

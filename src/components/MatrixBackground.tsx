@@ -68,10 +68,17 @@ const MatrixBackground = () => {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full z-0"
-    />
+    <div className="fixed top-0 left-0 w-full h-full z-0">
+      <canvas ref={canvasRef} className="w-full h-full" />
+      {/* Add logo overlay */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        <img 
+          src="/logo.png" // Update this path to match your logo location
+          alt="Chess Game Logo" 
+          className="w-48 h-48 object-contain animate-pulse" // Adjust size as needed
+        />
+      </div>
+    </div>
   );
 };
 
