@@ -6,7 +6,7 @@ import MatrixBackground from '../components/MatrixBackground';
 
 declare global {
   interface Window {
-    Telegram?: any;
+    Telegram?: { WebApp: WebApp; } | undefined;
   }
 }
 
