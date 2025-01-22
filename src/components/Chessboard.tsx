@@ -11,16 +11,26 @@ import { useStockfish } from '../hooks/stockfish';
 
 
 const TEXT_SNIPPETS = [
-  "The knight moves in an L-shape!",
-  "Bishops slide diagonally!",
-  "Rooks are powerful in straight lines!",
-  "Queen has combined rook and bishop moves!",
-  "Pawns move forward but capture diagonally!",
-  "King safety is crucial!",
-  "Control the center of the board!",
-  "Develop your pieces early!",
-  "Watch out for forks!",
-  "Pins can be powerful tactics!",
+  "Replace the word hard for valuable and you will instantly see how motivation appears from thin air.",
+  "If you're sad, you deserve it. If you want to be happy. Good. It’s time to work.",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+"  ",
+
 ];
 
 
@@ -246,7 +256,7 @@ const Chessboard: React.FC = () => {
 
     {/* Add this text snippet display */}
     <div className="mt-8 p-4 bg-gray-800 rounded-lg text-green-400 text-center max-w-2xl">
-      <p className="md:text-xl  md:text-xl text-base font-mono">{snippets[currentSnippetIndex]}</p>
+      <p className="md:text-xl  md:text-xl text-sm font-mono">{snippets[currentSnippetIndex]}</p>
     </div>
   </div>
 
