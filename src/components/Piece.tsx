@@ -10,12 +10,12 @@ type PieceProps = {
 const Piece: React.FC<PieceProps> = ({ piece }) => {
   // Mapping for white pieces to custom images
   const whitePieceImages: { [key: string]: string } = {
-    p: '/wp.png',
-    n: '/wp.png',
-    b: '/wp.png',
-    r: '/wp.png',
-    q: '/wp.png',
-    k: '/wp.png',
+    p: '/pieces/pawn_1.png',
+    n: '/pieces/knight_1.png',
+    b: '/pieces/bishop_1.png',
+    r: '/pieces/rook_1.png',
+    q: '/pieces/queen_1.png',
+    k: '/pieces/king_1.png',
   };
 
   // Mapping for black pieces to Unicode characters (you can customize this too)
