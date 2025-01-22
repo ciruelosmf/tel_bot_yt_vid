@@ -169,7 +169,7 @@ const Chessboard: React.FC = () => {
       // Send the current position to Stockfish
       stockfish.send('ucinewgame');
       stockfish.send(`position fen ${game.fen()}`);
-      stockfish.send('go depth 9');
+      stockfish.send('go depth 2');
     }
   };
 
