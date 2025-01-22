@@ -9,10 +9,35 @@ import { useStockfish } from '../hooks/stockfish';
 
 
 
+
+const TEXT_SNIPPETS = [
+  "The knight moves in an L-shape!",
+  "Bishops slide diagonally!",
+  "Rooks are powerful in straight lines!",
+  "Queen has combined rook and bishop moves!",
+  "Pawns move forward but capture diagonally!",
+  "King safety is crucial!",
+  "Control the center of the board!",
+  "Develop your pieces early!",
+  "Watch out for forks!",
+  "Pins can be powerful tactics!",
+];
+
+
+
+
 type SquareType = ChessJSPiece | null;
 type BoardType = SquareType[][];
 
 const Chessboard: React.FC = () => {
+
+
+  const [currentSnippetIndex, setCurrentSnippetIndex] = useState(0);
+  const [snippets] = useState(TEXT_SNIPPETS);
+
+
+
+
   // Use useRef to store the 'game' object
   const gameRef = useRef<Chess>(new Chess());
 
@@ -93,6 +118,10 @@ const Chessboard: React.FC = () => {
           setGameState((prev) => prev + 1);
           console.log("Move successful from", selectedSquare, "to", clickedSquare);
         
+
+          setCurrentSnippetIndex(prev => (prev + 1) % snippets.length);
+
+
           // Check for game over conditions
           if (game.isGameOver()) {
             if (game.isCheckmate()) {
@@ -201,15 +230,27 @@ const Chessboard: React.FC = () => {
   };
 
   return (
+
+
+    <div className="flex flex-col items-center">
+    {/* Existing chessboard rendering */}
     <div>
       {boardState.map((rowArray, rowIdx) => (
-        <div key={rowIdx} className="flex ">
+        <div key={rowIdx} className="flex">
           {rowArray.map((square, colIdx) =>
             renderSquare(square, rowIdx, colIdx)
           )}
         </div>
       ))}
     </div>
+
+    {/* Add this text snippet display */}
+    <div className="mt-8 p-4 bg-gray-800 rounded-lg text-green-400 text-center max-w-2xl">
+      <p className="text-xl font-mono">{snippets[currentSnippetIndex]}</p>
+    </div>
+  </div>
+
+  
   );
 };
 
