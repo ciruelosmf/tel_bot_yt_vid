@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react';
 import Chessboard from '../components/Chessboard';
+import MatrixBackground from '../components/MatrixBackground';
 
 
 
@@ -42,7 +43,10 @@ export default function TelegramMiniApp() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-800">
-      <Chessboard />
+      <MatrixBackground />
+      <div className="relative z-10"> {/* Ensure chessboard stays on top */}
+        <Chessboard />
+      </div>
     </div>
   );
 }
