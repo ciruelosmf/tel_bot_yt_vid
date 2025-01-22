@@ -246,11 +246,11 @@ const Chessboard: React.FC = () => {
 
     {/* Add this text snippet display */}
     <div className="mt-8 p-4 bg-gray-800 rounded-lg text-green-400 text-center max-w-2xl">
-      <p className="text-xl font-mono">{snippets[currentSnippetIndex]}</p>
+      <p className="md:text-xl  md:text-xl text-base font-mono">{snippets[currentSnippetIndex]}</p>
     </div>
   </div>
 
-  
+
   );
 };
 
