@@ -1,6 +1,6 @@
 // components/Piece.tsx
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Piece as ChessJSPiece } from 'chess.js';
 
 type PieceProps = {
@@ -8,14 +8,19 @@ type PieceProps = {
 };
 
 const Piece: React.FC<PieceProps> = ({ piece }) => {
+
+  const [variant] = useState(() => Math.random() < 0.5 ? 1 : 2);
+  const [variant2] = useState(() => Math.floor(Math.random() * 8) + 1);
+
+
   // Mapping for white pieces to custom images
   const whitePieceImages: { [key: string]: string } = {
-    p: '/pieces/pawn_1.png',
+    p: `/pieces/pawn_${variant2}.png`,
     n: '/pieces/knight_1.png',
     b: '/pieces/bishop_1.png',
     r: '/pieces/rook_1.png',
-    q: '/pieces/queen_1.png',
-    k: '/pieces/king_1.png',
+    q: `/pieces/queen_${piece.type === 'q' ? variant : 1}.png`,
+    k: `/pieces/king_${piece.type === 'k' ? variant : 1}.png`,
   };
 
   // Mapping for black pieces to Unicode characters (you can customize this too)
